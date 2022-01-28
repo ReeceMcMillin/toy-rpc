@@ -1,29 +1,29 @@
-#![warn(clippy::pedantic)]
-
-use std::net::UdpSocket;
-use client::socket::{copy, echo, list};
 use client::proxy::Proxy;
+use client::socket::{copy, echo, list};
 
 fn main() {
-    // Proxy-based API
+    // RPC using proxy-based API
     let rpc = Proxy::new("127.0.0.1:34254");
 
-    let echo_response_p = rpc.echo("hello");
-    let copy_response_p = rpc.copy("src", "dest");
-    let list_response_p = rpc.list(".");
-
-    println!("Echo response (proxy): {}", echo_response_p);
-    println!("Copy response (proxy): {}", copy_response_p);
-    println!("List response (proxy): {}", list_response_p);
+    let echo_response_proxy = rpc.echo("hello");
+    let copy_response_proxy = rpc.copy("src", "dest");
+    let list_response_proxy = rpc.list(".");
     
+    println!("Echo response (proxy): {}", echo_response_proxy);
+    println!("Copy response (proxy): {}", copy_response_proxy);
+    println!("List response (proxy): {}", list_response_proxy);
+
     println!("{}", "~-".repeat(25));
 
-    // Explicit socket-based API
-    let socket = UdpSocket::bind("127.0.0.1:9877").unwrap();
+    // Need to free the proxy's bound port by dropping the resource
+    drop(rpc);
 
-    let echo_response = echo(&socket, "hello");
-    let copy_response = copy(&socket, "src", "dest");
-    let list_response = list(&socket, ".");
+    // RPC using explicit address-as-argument API
+    let target = "127.0.0.1:34254";
+
+    let echo_response = echo(target, "hello");
+    let copy_response = copy(target, "src", "dest");
+    let list_response = list(target, ".");
 
     println!("Echo response:         {}", echo_response);
     println!("Copy response:         {}", copy_response);

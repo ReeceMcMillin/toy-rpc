@@ -10,8 +10,8 @@ fn copy(args: &[&str]) -> String {
     match args.len() {
         2 => {
             let (src, dest) = (args[0], args[1]);
-            format!("pretending to copy from `{}` to `{}`", &src, &dest)
-        },
+            format!("pretending to copy from `{src}` to `{dest}`")
+        }
         _ => String::from("usage: copy <file>"),
     }
 }
@@ -21,8 +21,8 @@ fn list(args: &[&str]) -> String {
         0 => String::from("pretending to list current directory"),
         1 => {
             let dir = args[0];
-            format!("pretending to list directory `{}`", &dir)
-        },
+            format!("pretending to list directory `{dir}`")
+        }
         _ => String::from("usage: ls [directory]"),
     }
 }
@@ -49,11 +49,15 @@ fn listen() {
         let recv = String::from_utf8_lossy(&buffer[..amt]).to_string();
         let split = recv.split_whitespace().collect::<Vec<&str>>();
         let cmd = *split.first().unwrap();
-        let args = split[1..].to_vec();
+        let args = split.iter().skip(1).copied().collect::<Vec<&str>>();
 
         let response = handle_rpc(cmd, &args);
 
-        socket.send_to(response.to_string().as_bytes(), src).unwrap();
+        socket
+            .send_to(response.to_string().as_bytes(), src)
+            .unwrap();
+
+        // Clear buffer
         buffer = [0; 1024];
     }
 }
