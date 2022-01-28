@@ -4,8 +4,15 @@ Toy example of an RPC client/server system over UDP to solidify concepts from my
 
 I wanted to play with two different API styles:
 - using a `Proxy` interface that manages the socket behind the scenes
+    ```rust
+    let rpc = Proxy::new("127.0.0.1:34254");
+    let response = rpc.echo("hello, world!");
+    ```
 - passing the target address explicitly as a function argument
-
+    ```rust
+    let target = "127.0.0.1:34254";
+    let response = echo(target, "hello, world!");
+    ```
 In either case, calling code doesn't need to know what a socket is, only where to find the server.
 
 # Usage
